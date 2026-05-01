@@ -4,11 +4,7 @@ import os, sys
 st.set_page_config(page_title="Configuracion — Lu Writes", layout="wide")
 
 MODELS = [
-    "google/gemma-4-26b-a4b-it",
-    "google/gemma-4-31b-it",
-    "openai/gpt-4o",
-    "anthropic/claude-3.5-sonnet",
-    "mistralai/mistral-7b-instruct",
+    "google/gemma-4-26b-a4b-it"
 ]
 STYLE_DIR = os.path.join(os.path.dirname(__file__), "..", "estilos")
 os.makedirs(STYLE_DIR, exist_ok=True)
