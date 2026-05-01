@@ -4,7 +4,7 @@ import os, sys
 st.set_page_config(page_title="Configuracion — Lu Writes", layout="wide")
 
 MODELS = [
-    "google/gemma-4-26b-a4b-it"
+    "google/gemma-4-26b-a4b-it",
 ]
 STYLE_DIR = os.path.join(os.path.dirname(__file__), "..", "estilos")
 os.makedirs(STYLE_DIR, exist_ok=True)
@@ -59,9 +59,9 @@ with col2:
     st.subheader("Escritura")
 
     LONG_OPTS = [
-        "Corto  —  250 palabras",
-        "Mediano  —  600 palabras",
-        "Largo  —  1100 palabras",
+        "Corto  —  100 palabras",
+        "Mediano  —  300 palabras",
+        "Largo  —  500 palabras",
     ]
     longitud = st.radio(
         "Longitud del texto generado",
