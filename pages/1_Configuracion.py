@@ -9,23 +9,25 @@ MODELS = [
 STYLE_DIR = os.path.join(os.path.dirname(__file__), "..", "estilos")
 os.makedirs(STYLE_DIR, exist_ok=True)
 
-# Verificar API key desde secrets
-try:
-    api_key_ok = bool(st.secrets.get("OPENROUTER_API_KEY", ""))
-except Exception:
-    api_key_ok = False
-
 st.title("Configuracion")
 st.markdown("*Parametros globales de la sesion. Se aplican en Redaccion y Bibliografia.*")
 st.divider()
 
+st.subheader("API Key de OpenRouter")
+openrouter_api_key = st.text_input(
+    "Ingresa tu API Key de OpenRouter",
+    value=st.session_state.get("openrouter_api_key", ""),
+    type="password",
+    placeholder="sk-or-v1-...",
+    help="Cada usuario debe usar su propia API Key. No se comparte ni se almacena en el servidor.",
+)
+
+api_key_ok = bool(openrouter_api_key.strip())
+
 if not api_key_ok:
-    st.error(
-        "No se encontro OPENROUTER_API_KEY en los secrets de Streamlit. "
-        "Crea el archivo .streamlit/secrets.toml con: OPENROUTER_API_KEY = \"sk-or-v1-...\""
-    )
+    st.warning("Ingresa tu API Key de OpenRouter para poder redactar.")
 else:
-    st.success("API Key cargada correctamente desde secrets.")
+    st.success("API Key ingresada correctamente.")
 
 col1, col2 = st.columns(2, gap="large")
 
@@ -87,6 +89,7 @@ if st.button("Guardar configuracion", type="primary"):
     st.session_state.temp_label    = temp_label
     st.session_state.estilo_elegido = estilo_elegido
     st.session_state.longitud      = longitud
+    st.session_state.openrouter_api_key = openrouter_api_key.strip()
     st.success("Configuracion guardada. Navega a Redaccion o Bibliografia.")
 
 # Resumen activo
