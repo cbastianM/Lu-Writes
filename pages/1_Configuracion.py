@@ -4,7 +4,7 @@ import os, sys
 st.set_page_config(page_title="Configuracion — Lu Writes", layout="wide")
 
 MODELS = [
-    "google/gemma-4-26b-a4b-it",
+    "nousresearch/hermes-3-llama-3.1-405b:free"
 ]
 STYLE_DIR = os.path.join(os.path.dirname(__file__), "..", "estilos")
 os.makedirs(STYLE_DIR, exist_ok=True)
