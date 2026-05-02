@@ -10,14 +10,21 @@ def limpiar(texto: str) -> str:
     texto = ''.join(c for c in texto if c.isprintable() or c in '\n\r\t')
     return re.sub(r'[\u200B-\u200D\uFEFF]', '', texto).strip()
 
-try:
-    API_KEY = st.secrets["OPENROUTER_API_KEY"]
-except Exception:
-    st.error("No se encontro OPENROUTER_API_KEY en secrets. Configura .streamlit/secrets.toml")
-    st.stop()
+# ── valores por defecto ──────────────────────────────────────────────────────
+if "modelo" not in st.session_state:
+    st.session_state.modelo = "google/gemma-4-26b-a4b-it"
+if "temperatura" not in st.session_state:
+    st.session_state.temperatura = 0.8
+if "temp_label" not in st.session_state:
+    st.session_state.temp_label = "Fluido y natural — 0.8  (recomendado)"
+if "longitud" not in st.session_state:
+    st.session_state.longitud = "Mediano  —  300 palabras"
+if "estilo_elegido" not in st.session_state:
+    st.session_state.estilo_elegido = "Ninguno"
 
-if not st.session_state.get("modelo"):
-    st.warning("Primero guarda la configuracion en la pagina Configuracion.")
+API_KEY = st.session_state.get("openrouter_api_key", "")
+if not API_KEY:
+    st.error("No se encontro API Key. Ve a Configuracion e ingresa tu OPENROUTER_API_KEY.")
     st.stop()
 
 st.title("Generador de Bibliografia")
