@@ -16,9 +16,9 @@ def leer_estilo(nombre: str) -> str:
     return open(ruta, encoding="utf-8").read() if os.path.exists(ruta) else ""
 
 LONG_MAP = {
-    "Corto  —  250 palabras":   "CORTA, aproximadamente 250 palabras.",
-    "Mediano  —  600 palabras": "MEDIANA, aproximadamente 600 palabras.",
-    "Largo  —  1100 palabras":  "LARGA, mas de 1000 palabras.",
+    "Corto  —  100 palabras":   "CORTA, aproximadamente 100 palabras.",
+    "Mediano  —  300 palabras": "MEDIANA, aproximadamente 300 palabras.",
+    "Largo  —  500 palabras":  "LARGA, mas de 500 palabras.",
 }
 
 # ── verificar secrets ─────────────────────────────────────────────────────────
