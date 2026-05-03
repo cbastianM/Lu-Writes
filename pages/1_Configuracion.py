@@ -4,7 +4,7 @@ import os, sys
 st.set_page_config(page_title="Configuracion — Lu Writes", layout="wide")
 
 MODELS = [
-    "google/gemma-4-26b-a4b-it:free",
+    "openrouter/free",
 ]
 
 STYLE_DIR = os.path.join(os.path.dirname(__file__), "..", "estilos")
@@ -12,15 +12,17 @@ os.makedirs(STYLE_DIR, exist_ok=True)
 
 # ── valores por defecto ──────────────────────────────────────────────────────
 if "modelo" not in st.session_state:
-    st.session_state.modelo = "google/gemma-4-26b-a4b-it"
+    st.session_state.modelo = "openrouter/free"
 if "temperatura" not in st.session_state:
-    st.session_state.temperatura = 0.8
+    st.session_state.temperatura = 1.0
 if "temp_label" not in st.session_state:
-    st.session_state.temp_label = "Fluido y natural — 0.8  (recomendado)"
+    st.session_state.temp_label = "Muy creativo — 1.0 (recomendado)"
+if "doble_pasada" not in st.session_state:
+    st.session_state.doble_pasada = True
 if "longitud" not in st.session_state:
     st.session_state.longitud = "Mediano  —  300 palabras"
 if "estilo_elegido" not in st.session_state:
-    st.session_state.estilo_elegido = "Ninguno"
+    st.session_state.estilo_elegido = "academico_tecnico.md"
 
 st.title("Configuracion")
 st.markdown("*Parametros globales de la sesion. Se aplican en Redaccion y Bibliografia.*")
@@ -32,7 +34,7 @@ openrouter_api_key = st.text_input(
     value=st.session_state.get("openrouter_api_key", ""),
     type="password",
     placeholder="sk-or-v1-...",
-    help="Cada usuario debe usar su propia API Key. No se comparte ni se almacena en el servidor.",
+    help="Obten tu API Key gratuita en https://openrouter.ai/keys",
 )
 
 api_key_ok = bool(openrouter_api_key.strip())
@@ -54,11 +56,11 @@ with col1:
     TEMP_OPTS = {
         "Preciso y conservador — 0.3": 0.3,
         "Equilibrado — 0.6": 0.6,
-        "Fluido y natural — 0.8  (recomendado)": 0.8,
-        "Muy creativo — 1.0": 1.0,
+        "Fluido y natural — 0.8": 0.8,
+        "Muy creativo — 1.0 (recomendado)": 1.0,
     }
-    temp_actual = st.session_state.get("temp_label", "Fluido y natural — 0.8  (recomendado)")
-    idx_temp = list(TEMP_OPTS.keys()).index(temp_actual) if temp_actual in TEMP_OPTS else 2
+    temp_actual = st.session_state.get("temp_label", "Muy creativo — 1.0 (recomendado)")
+    idx_temp = list(TEMP_OPTS.keys()).index(temp_actual) if temp_actual in TEMP_OPTS else 3
     temp_label = st.selectbox("Nivel de creatividad", list(TEMP_OPTS.keys()), index=idx_temp)
     temperatura = TEMP_OPTS[temp_label]
 
@@ -75,12 +77,11 @@ with col2:
     longitud = st.radio("Longitud del texto generado", LONG_OPTS, index=idx_long)
 
     archivos_md = [f for f in os.listdir(STYLE_DIR) if f.endswith(".md")]
-    opciones = ["Ninguno"] + archivos_md
-    actual = st.session_state.get("estilo_elegido", "Ninguno")
+    opciones = archivos_md if archivos_md else ["academico_tecnico.md"]
+    actual = st.session_state.get("estilo_elegido", "academico_tecnico.md")
     idx_estilo = opciones.index(actual) if actual in opciones else 0
     estilo_elegido = st.selectbox("Archivo de estilo de escritura (.md)", opciones, index=idx_estilo)
-    if not archivos_md:
-        st.caption("Agrega archivos .md en la carpeta estilos/ para personalizar el tono de redaccion.")
+    st.caption("Estilo académico-técnico seleccionado por defecto.")
 
 st.divider()
 
