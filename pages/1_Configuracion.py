@@ -40,14 +40,6 @@ for k, v in DEFAULTS.items():
 
 # ====================== HELPERS ======================
 
-def api_key_en_secrets() -> bool:
-    """True si OPENROUTER_API_KEY esta definida en .streamlit/secrets.toml."""
-    try:
-        return "OPENROUTER_API_KEY" in st.secrets and bool(st.secrets["OPENROUTER_API_KEY"])
-    except Exception:
-        return False
-
-
 def listar_estilos() -> list:
     archivos = sorted(f.name for f in STYLE_DIR.glob("*.md"))
     return archivos or ["academico_tecnico.md"]
@@ -59,42 +51,6 @@ st.title("Configuracion")
 st.markdown("*Parametros globales de la sesion. Se aplican en Redaccion y Bibliografia.*")
 st.divider()
 
-
-# --- API KEY ---
-st.subheader("API Key de OpenRouter")
-
-api_key_desde_secrets = api_key_en_secrets()
-openrouter_api_key = ""  # placeholder por si no se muestra el input
-
-if api_key_desde_secrets:
-    st.success("API Key cargada desde `.streamlit/secrets.toml` — no necesitas hacer nada mas.")
-    with st.expander("Por que ya no aparece el campo?"):
-        st.markdown(
-            "La key se lee directamente desde `secrets.toml` (o desde "
-            "*Settings → Secrets* en Streamlit Community Cloud).\n\n"
-            "Para cambiarla, edita ese archivo. "
-            "Esto evita exponerla en la UI y, si tienes "
-            "`.streamlit/secrets.toml` en tu `.gitignore`, tampoco se sube al repo."
-        )
-else:
-    st.caption(
-        "No se encontro la key en `secrets.toml`. Puedes ingresarla aqui "
-        "(se guarda solo en la sesion, no en disco)."
-    )
-    openrouter_api_key = st.text_input(
-        "Ingresa tu API Key de OpenRouter",
-        value=st.session_state.get("openrouter_api_key", ""),
-        type="password",
-        placeholder="sk-or-v1-...",
-        help="Obten tu API Key gratuita en https://openrouter.ai/keys",
-    )
-    if openrouter_api_key.strip():
-        st.success("API Key ingresada correctamente.")
-    else:
-        st.warning("Ingresa tu API Key de OpenRouter para poder redactar.")
-
-
-# --- Parametros del modelo y de escritura ---
 col1, col2 = st.columns(2, gap="large")
 
 with col1:
@@ -135,22 +91,14 @@ if st.button("Guardar configuracion", type="primary"):
     st.session_state["temp_label"] = temp_label
     st.session_state["estilo_elegido"] = estilo_elegido
     st.session_state["longitud"] = longitud
-    if not api_key_desde_secrets:
-        st.session_state["openrouter_api_key"] = openrouter_api_key.strip()
     st.toast("Configuracion guardada.", icon="✅")
     st.success("Configuracion guardada. Navega a Redaccion o Bibliografia.")
 
 
 # --- Resumen activo ---
-fuente_api = (
-    "secrets.toml" if api_key_desde_secrets
-    else ("sesion" if st.session_state.get("openrouter_api_key") else "no configurada")
-)
-
 st.info(
     f"**Modelo:** {st.session_state.get('modelo', '—')}  |  "
     f"**Temperatura:** {st.session_state.get('temperatura', '—')}  |  "
     f"**Longitud:** {st.session_state.get('longitud', '—')}  |  "
-    f"**Estilo:** {st.session_state.get('estilo_elegido', 'Ninguno')}  |  "
-    f"**API Key:** {fuente_api}"
+    f"**Estilo:** {st.session_state.get('estilo_elegido', 'Ninguno')}"
 )
