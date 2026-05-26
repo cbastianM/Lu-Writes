@@ -45,6 +45,17 @@ TIPOS_BIBTEX = [
     "techreport", "phdthesis", "mastersthesis",
 ]
 
+MODELS = [
+    "openrouter/free",
+]
+
+TEMP_OPTS = {
+    "Preciso y conservador — 0.3": 0.3,
+    "Equilibrado — 0.6": 0.6,
+    "Fluido y natural — 0.8": 0.8,
+    "Muy creativo — 1.0 (recomendado)": 1.0,
+}
+
 
 
 
@@ -74,6 +85,13 @@ def limpiar(texto: str) -> str:
 def leer_estilo(nombre: str) -> str:
     ruta = ESTILOS_DIR / nombre
     return ruta.read_text(encoding="utf-8") if ruta.exists() else ""
+
+
+def listar_estilos() -> list:
+    """Lista archivos .md en la carpeta de estilos. Garantiza el default si esta vacia."""
+    ESTILOS_DIR.mkdir(exist_ok=True)
+    archivos = sorted(f.name for f in ESTILOS_DIR.glob("*.md"))
+    return archivos or [ESTILO_DEFAULT]
 
 
 def contar_referencias(bibtex: str) -> int:
@@ -305,6 +323,29 @@ if not API_KEY:
         "Agregala con: `OPENROUTER_API_KEY = \"sk-or-v1-...\"` y reinicia la app."
     )
     st.stop()
+
+
+# ====================== SIDEBAR ======================
+
+with st.sidebar:
+    st.header("Ajustes")
+    st.caption("Parametros del modelo y la salida.")
+
+    st.selectbox("Modelo de lenguaje", MODELS, key="modelo")
+
+    st.selectbox("Nivel de creatividad", list(TEMP_OPTS), key="temp_label")
+    st.session_state["temperatura"] = TEMP_OPTS[st.session_state["temp_label"]]
+
+    st.radio("Longitud del texto", list(LONG_MAP), key="longitud")
+
+    # Validar que el estilo guardado siga existiendo en disco
+    estilos_disponibles = listar_estilos()
+    if st.session_state["estilo_elegido"] not in estilos_disponibles:
+        st.session_state["estilo_elegido"] = estilos_disponibles[0]
+    st.selectbox("Estilo de escritura", estilos_disponibles, key="estilo_elegido")
+
+    st.divider()
+    st.caption(f"Temperatura activa: **{st.session_state['temperatura']}**")
 
 
 # ====================== UI ======================
