@@ -2,7 +2,6 @@ import streamlit as st
 from openai import OpenAI
 import streamlit.components.v1 as components
 import re
-import os
 import time
 import json
 from pathlib import Path
@@ -47,22 +46,7 @@ TIPOS_BIBTEX = [
 ]
 
 
-# ====================== API KEY ======================
 
-def obtener_api_key() -> str:
-    """Lee la API key desde st.secrets, luego session_state, luego env."""
-    # 1) Streamlit secrets (preferido)
-    try:
-        if "OPENROUTER_API_KEY" in st.secrets:
-            return st.secrets["OPENROUTER_API_KEY"]
-    except Exception:
-        pass
-    # 2) Session state (compatibilidad con la pagina de Configuracion)
-    key = st.session_state.get("openrouter_api_key")
-    if key:
-        return key
-    # 3) Variable de entorno (despliegue alternativo)
-    return os.getenv("OPENROUTER_API_KEY", "")
 
 
 # ====================== HELPERS ======================
@@ -308,14 +292,17 @@ for k in ("bibtex_cargado", "bibtex_nombre"):
     st.session_state.pop(k, None)
 
 
-# ====================== VALIDAR API KEY ======================
+# ====================== API KEY ======================
 
-API_KEY = obtener_api_key()
+try:
+    API_KEY = st.secrets["OPENROUTER_API_KEY"]
+except Exception:
+    API_KEY = ""
+
 if not API_KEY:
     st.error(
-        "No se encontro la API Key de OpenRouter. "
-        "Configurala en `.streamlit/secrets.toml` como "
-        "`OPENROUTER_API_KEY = \"sk-or-v1-...\"` o desde la pagina de Configuracion."
+        "Falta `OPENROUTER_API_KEY` en `.streamlit/secrets.toml`. "
+        "Agregala con: `OPENROUTER_API_KEY = \"sk-or-v1-...\"` y reinicia la app."
     )
     st.stop()
 
