@@ -45,16 +45,9 @@ TIPOS_BIBTEX = [
     "techreport", "phdthesis", "mastersthesis",
 ]
 
-MODELS = [
-    "openrouter/free",
-]
-
-TEMP_OPTS = {
-    "Preciso y conservador — 0.3": 0.3,
-    "Equilibrado — 0.6": 0.6,
-    "Fluido y natural — 0.8": 0.8,
-    "Muy creativo — 1.0 (recomendado)": 1.0,
-}
+# Parametros fijos del modelo. La creatividad se delega al archivo de estilo.
+MODELO = "openrouter/free"
+TEMPERATURA = 1.0
 
 
 
@@ -296,9 +289,6 @@ LONGITUD: {longitud_str}
 # ====================== ESTADO INICIAL ======================
 
 DEFAULTS = {
-    "modelo": "openrouter/free",
-    "temperatura": 1.0,
-    "temp_label": "Muy creativo — 1.0 (recomendado)",
     "longitud": "Mediano  —  300 palabras",
     "estilo_elegido": ESTILO_DEFAULT,
 }
@@ -329,12 +319,10 @@ if not API_KEY:
 
 with st.sidebar:
     st.header("Ajustes")
-    st.caption("Parametros del modelo y la salida.")
-
-    st.selectbox("Modelo de lenguaje", MODELS, key="modelo")
-
-    st.selectbox("Nivel de creatividad", list(TEMP_OPTS), key="temp_label")
-    st.session_state["temperatura"] = TEMP_OPTS[st.session_state["temp_label"]]
+    st.caption(
+        "El **estilo de escritura** es el parametro principal: "
+        "define el tono, la voz y las reglas que sigue Lu."
+    )
 
     st.radio("Longitud del texto", list(LONG_MAP), key="longitud")
 
@@ -344,8 +332,13 @@ with st.sidebar:
         st.session_state["estilo_elegido"] = estilos_disponibles[0]
     st.selectbox("Estilo de escritura", estilos_disponibles, key="estilo_elegido")
 
-    st.divider()
-    st.caption(f"Temperatura activa: **{st.session_state['temperatura']}**")
+    # Preview del estilo activo
+    estilo_contenido = leer_estilo(st.session_state["estilo_elegido"])
+    if estilo_contenido:
+        with st.expander("Ver instrucciones del estilo"):
+            st.markdown(estilo_contenido)
+    else:
+        st.warning(f"No se encontro contenido en `{st.session_state['estilo_elegido']}`.")
 
 
 # ====================== UI ======================
@@ -453,19 +446,16 @@ if st.button("Redactar con Lu Writes", type="primary", use_container_width=True)
     st.subheader(seccion)
 
     client = crear_cliente(API_KEY)
-    modelo = st.session_state["modelo"]
-    # La app fuerza temperatura alta para evitar texto plano (minimo 1.0)
-    temperatura = max(float(st.session_state.get("temperatura", 1.0)), 1.0)
 
     with st.spinner("Generando texto..."):
         resp = llamar_api(
             client=client,
-            modelo=modelo,
+            modelo=MODELO,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            temperatura=temperatura,
+            temperatura=TEMPERATURA,
         )
 
     if resp is None:
